@@ -21,6 +21,7 @@
         <input id="file" ref="fileInput" type="file" accept=".csv,text/csv" @change="onFile" style="display:none" />
       </div>
     </div>
+    
 
     <!-- Card central con lista lateral y paso activo -->
     <div v-else class="layout">
