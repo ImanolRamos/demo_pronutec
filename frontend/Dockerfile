@@ -1,5 +1,5 @@
 # Etapa 1: build del frontend
-FROM node:24 AS build
+FROM node:24 AS build-stage
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
