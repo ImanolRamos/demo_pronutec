@@ -6,6 +6,13 @@
                    @file-loaded="onFile" 
                    @use-sample="useSample" />
 
+    <!-- Pantalla de materiales -->
+    <MaterialScreen v-else-if="tasks.length > 0 && !materialsLoaded"
+                    :materials="materials"
+                    :done="doneMaterials"
+                    @load-materials="loadMaterialsCSV"
+                    @materials-done="handleMaterialsDone" />
+
     <!-- Pantalla final -->
     <FinalScreen v-else-if="allDone" 
                  @restart="restart" 
@@ -45,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeUnmount, watch, nextTick } from 'vue'
+import { ref, reactive, computed, onBeforeUnmount, watch, nextTick } from 'vue'
 
 // Subcomponentes
 import InitialScreen from './components/InitialScreen.vue'
@@ -54,6 +61,7 @@ import StepList from './components/StepList.vue'
 import StepCard from './components/StepCard.vue'
 import AttachmentsModal from './components/AttachmentsModal.vue'
 import FullScreenAttachment from './components/FullScreenAttachment.vue'
+import MaterialScreen from './components/MaterialScreen.vue'
 
 // Estados principales
 const tasks = ref([])
@@ -64,6 +72,11 @@ const intervalRef = ref(null)
 const stepRefs = ref([])
 const showAttachmentsModal = ref(false)
 const fullScreenAttachment = ref(null)
+
+// Variables para materiales
+const materials = ref([])           // lista de materiales cargados
+const materialsLoaded = ref(false)  // si los materiales ya fueron confirmados
+const doneMaterials = reactive({})  // estado de checkboxes
 
 // Computed
 const current = computed(() => tasks.value[currentIndex.value] || {})
@@ -132,7 +145,7 @@ async function onFile(e){
   const text = await f.text()
   tasks.value = parseCSV(text)
   currentIndex.value=0
-  if(tasks.value.length) startTimer()
+  if(tasks.value.length && materialsLoaded.value) startTimer()
 }
 
 function useSample(){
@@ -151,11 +164,13 @@ function useSample(){
     { name:'Diagrama.png', url:'/attachments/diagrama.png', type:'image' }
   ]
   currentIndex.value=0
-  startTimer()
+  if(materialsLoaded.value) startTimer()
 }
 
 function restart() {
   tasks.value=[]; currentIndex.value=0; timeLeft.value=0; paused.value=false
+  materials.value=[]; materialsLoaded.value=false
+  Object.keys(doneMaterials).forEach(k => delete doneMaterials[k])
 }
 
 function openFullScreen(att){
@@ -169,6 +184,56 @@ watch(currentIndex, async () => {
   const el = stepRefs.value[currentIndex.value]
   if(el) el.scrollIntoView({ behavior:'smooth', block:'center' })
 })
+
+// Manejo de CSV de materiales
+async function loadMaterialsCSV(e){
+  const f = e.target.files[0]
+  if(!f) return
+  const text = await f.text()
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+  if(!lines.length) return
+  const header = lines.shift().split(',')
+  const newMaterials = lines.map(line => {
+    const cols = line.split(',')
+    const obj = {}
+    header.forEach((h,i)=> obj[h]=cols[i]??'')
+    return {
+      id: Number(obj.id) || Date.now() + Math.floor(Math.random()*1000),
+      name: obj.name || `Material ${obj.id||''}`,
+      quantity: obj.quantity || 1
+    }
+  })
+  materials.value = newMaterials
+
+  // Inicializar doneMaterials solo para materiales nuevos
+  newMaterials.forEach(m => {
+    if(doneMaterials[m.id] === undefined) doneMaterials[m.id] = false
+  })
+}
+
+
+
+// Confirmación de materiales
+function handleMaterialsDone(result) {
+  // Actualizar el estado local doneMaterials según lo recibido
+  result.forEach(([id, checked]) => {
+    doneMaterials[id] = checked
+  })
+
+  // Verificar que todos estén marcados
+  const allChecked = Object.values(doneMaterials).every(v => v === true)
+  if (!allChecked) {
+    alert('Debe marcar todos los materiales antes de continuar')
+    return
+  }
+
+  // Confirmar que los materiales han sido cargados
+  materialsLoaded.value = true
+
+  // Iniciar timer si hay tareas
+  if (tasks.value.length) startTimer()
+}
+
 
 onBeforeUnmount(()=>stopTimer())
 </script>

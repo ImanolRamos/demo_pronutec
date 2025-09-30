@@ -1,0 +1,16 @@
+id,name,quantity,unit
+1,Cables fase,10,m
+2,Cables neutro,5,m
+3,Cables tierra,5,m
+4,Canaleta PVC,2,m
+5,Tornillos M4,20,units
+6,Pines de conexión,10,units
+7,Interruptor automático 10A,2,units
+8,Interruptor diferencial 30mA,1,unit
+9,Regleta de conexión,2,units
+10,Placa de montaje,1,unit
+11,Tornillos de fijación,10,units
+12,Grapas para cables,10,units
+13,Cinta aislante,1,roll
+14,Guantes dieléctricos,1,pair
+
