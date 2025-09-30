@@ -121,24 +121,38 @@ function advanceStep(){
 
 // CSV
 function parseCSV(text){
-  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean)
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
   if(!lines.length) return []
+  
   const header = lines.shift().split(',')
-  return lines.map(line=>{
+
+  return lines.map(line => {
     const cols = line.split(',')
     const obj = {}
-    header.forEach((h,i)=> obj[h]=cols[i]??'')
+    header.forEach((h, i) => obj[h.trim()] = cols[i]?.trim() ?? '')
+
+    // Procesar attachments si existe la columna
+    let attachments = []
+    if(obj.attachments){
+      attachments = obj.attachments.split(';').map(a => {
+        const [name, url, type] = a.split('|').map(x => x.trim())
+        return { name, url, type }
+      })
+    }
+
     return {
-      id:Number(obj.id)||Date.now()+Math.floor(Math.random()*1000),
-      title:obj.title||`Paso ${obj.id||''}`,
-      description:obj.description||'',
-      duration:Math.max(0,Number(obj.duration||0)),
-      control:obj.control||'',
-      attachments: [],
-      _done:false
+      id: Number(obj.id) || Date.now() + Math.floor(Math.random() * 1000),
+      title: obj.title || `Paso ${obj.id || ''}`,
+      description: obj.description || '',
+      duration: Math.max(0, Number(obj.duration || 0)),
+      control: obj.control || '',
+      attachments,
+      _done: false
     }
   })
 }
+
+
 
 async function onFile(e){
   const f = e.target.files[0]; if(!f) return

@@ -1,0 +1,7 @@
+id,title,description,duration,control,attachments
+1,Conectar manguera,Conectar la manguera al racor,20,,
+2,Encender válvula,Accionar la palanca hasta oír click,30,Pulsa "Válvula OK","Manual Válvula.pdf|/attachments/manual_valvula.pdf|pdf;Video operación.mp4|/attachments/video_operacion.mp4|video"
+3,Medir presión,Anotar lectura del manómetro,15,,"Diagrama.png|/attachments/diagrama.png|image"
+4,Confirmar seguridad,Comprobar que zona segura,45,Confirmar seguridad,
+5,Finalizar,Desconectar y cerrar,10,,
+
