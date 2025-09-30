@@ -4,7 +4,8 @@ WORKDIR /app
 
 # Copiar package.json y package-lock.json
 COPY package*.json ./
-RUN npm ci
+# Instalar las dependencias
+RUN npm install
 
 # Copiar el resto del código
 COPY . .
@@ -18,7 +19,7 @@ FROM nginx:stable-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copiar configuración de Nginx personalizada
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Montar certificados (ya se hace con docker-compose)
 # Vuelve a exponer el puerto 443
