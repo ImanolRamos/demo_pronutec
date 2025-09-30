@@ -1,0 +1,15 @@
+services:
+  frontend-service:
+    container_name: "pronutec_frontend"
+    restart: always
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    env_file:
+      - frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /etc/letsencrypt:/certs/letsencrypt
+    ports:
+      # - "81:80"
+      - 445:443

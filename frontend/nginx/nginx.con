@@ -1,0 +1,38 @@
+worker_processes 4;
+
+events { worker_connections 1024; }
+
+http {
+    # server {
+    #     listen 80;
+    #     root  /usr/share/nginx/html;
+    #     include /etc/nginx/mime.types;
+
+    #     location /appui {
+    #         try_files $uri /index.html;
+    #     }
+    # }
+    server {
+        server_name demo.pronutec.koiote.es;
+
+        root  /usr/share/nginx/html;
+        include /etc/nginx/mime.types;
+
+        location / {
+            try_files $uri $uri/ @rewrites;
+        }
+
+        location @rewrites{
+            rewrite ^(.+)$ /index.html last;
+        }
+
+
+        listen 443 ssl; # managed by Certbot
+        ssl_certificate /certs/letsencrypt/live/demo.pronutec.koiote.es/fullchain.pem; # manged by Certbot
+        ssl_certificate_key /certs/letsencrypt/live/demo.pronutec.koiote.es/privkey.pem; # managed by Certbot
+        include /certs/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+        ssl_dhparam /certs/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    }
+
+}
